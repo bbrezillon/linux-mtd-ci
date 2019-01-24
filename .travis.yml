@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: GPL-2.0+
+# Copyright Boris Brezillon <bbrezillon@kernel>
+
+# build Linux MTD related on Travis CI - https://travis-ci.org/
+
+sudo: required
+dist: xenial
+
+language: c
+
+addons:
+  apt:
+    packages:
+    - gcc-arm-linux-gnueabi
+    - lzop
+
+before_script:
+ - git clone --depth=1 https://github.com/bbrezillon/linux-0day.git linux --branch=$TRAVIS_BRANCH;
+   cd linux
+
+script:
+ - make distclean;
+   cp ../$CONFIG .config && make olddefconfig;
+   make -j4
+
+matrix:
+  include:
+    - name: "arm v6/v7 allmod"
+      env:
+        - ARCH=arm
+          CROSS_COMPILE=arm-linux-gnueabi-
+          CONFIG=arm_v6_v7_allmod_defconfig
